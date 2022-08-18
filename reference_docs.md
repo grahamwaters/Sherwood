@@ -90,3 +90,14 @@
  'change',
  'low',
  'high']
+
+
+ # Trading view useful indicators
+
+* Opening price: analysis.indicators["open"]
+* Closing price: analysis.indicators["close"]
+* Momentum: analysis.indicators["Mom"]
+* RSI: analysis.indicators["RSI"]
+* MACD: analysis.indicators["MACD.macd"]
+
+[source for more information](https://python-tradingview-ta.readthedocs.io/en/latest/usage.html?highlight=crypto#instantiating-ta-handler)

@@ -6,8 +6,9 @@
 
 from config import config
 from signals import signals
+from tradingview_config import exchanges_dict # this contains the exchange names for each currency pair.
 import pandas as pd
-from tradingview_ta import TA_Handler, Interval
+from tradingview_ta import TA_Handler, Interval, Exchange
 
 class record:
     crypto_ticker = '' # the ticker for the coin on Robinhood.
@@ -404,8 +405,20 @@ class checker:
         return available_cash
     def retrieve_indicators(symbol,
                             screener='crypto',
-                            interval=Interval.INTERVAL_1_DAY,
+                            interval=Interval.INTERVAL_15_MINUTES,
                             exchange='BITFINEX'):
+        """
+        Gets indicators given a symbol and interval
+
+        Args:
+            symbol (_type_): _description_
+            screener (str, optional): _description_. Defaults to 'crypto'.
+            interval (_type_, optional): _description_. Defaults to Interval.INTERVAL_15_MINUTES.
+            exchange (str, optional): _description_. Defaults to 'BITFINEX'.
+
+        Returns:
+            _type_: _description_
+        """
         try:
             ta_handler = TA_Handler(symbol, interval, exchange)
             result = ta_handler.get_analysis().indicators # this result can be parsed for the indicators desired.
@@ -413,6 +426,17 @@ class checker:
         except Exception as e:
             print(e)
             return None
+
+tickers = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',"XLM",'LTC','LINK']
+for ticker in tickers: #
+    res = checker.retrieve_indicators(ticker,
+                              'crypto',
+                              Interval.INTERVAL_15_MINUTES,
+                              exchanges_dict[f'{ticker}USD'])
+    # res contains the indicators for the ticker
+
+
+
 
 if __name__ == '__main__':
     LittleJohn = trader() # initialize the trader class
