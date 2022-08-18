@@ -42,6 +42,7 @@ The Trader class is the main class for Sherwood. Any actions that involve a volu
 * buying a cryptocurrency by volume in COIN
 * selling a cryptocurrency by amount in USD **(unusual behavior)**
 * selling a cryptocurrency by volume in COIN
+* canceling an open order by its order id
 
 ### The Checker Class
 The checker class is an important part of Sherwood. Any actions that involve asking Robinhood for information will be performed using methods defined in this class. It is responsible for the following:
