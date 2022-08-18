@@ -173,85 +173,6 @@ class trader:
         print( 'Bot Ready' )
 
         return
-
-    def is_data_consistent( self, now ):
-        if ( self.data.shape[ 0 ] <= 1 ):
-            return False
-
-        # Check for break between now and last sample
-        timediff = now - datetime.strptime( self.data.iloc[ -1 ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
-
-        # Not enough data points available or it's been too long since we recorded any data
-        if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
-            return False
-
-        # Check for break in sequence of samples to minimum consecutive sample number
-        position = len( self.data ) - 1
-        if ( position >= self.min_consecutive_samples ):
-            for x in range( 0, self.min_consecutive_samples ):
-                timediff = datetime.strptime( self.data.iloc[ position - x ][ 'timestamp' ], '%Y-%m-%d %H:%M' ) - datetime.strptime( self.data.iloc[ position - ( x + 1 ) ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
-
-                if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
-                    print( 'Holding trades: interruption found in price data.' )
-                    return False
-
-        return True
-
-    def get_new_data( self, now ):
-        new_row = {}
-
-        self.is_trading_locked = False
-        new_row[ 'timestamp' ] = now.strftime( "%Y-%m-%d %H:%M" )
-
-        # Calculate moving averages and RSI values
-        for a_kraken_ticker, a_robinhood_ticker in config[ 'ticker_list' ].items():
-            if ( not config[ 'debug_enabled' ] ):
-                try:
-                    result = get_json( 'https://api.kraken.com/0/public/Ticker?pair=' + str( a_kraken_ticker ) ).json()
-
-                    if ( len( result[ 'error' ] ) == 0 ):
-                        new_row[ a_robinhood_ticker ] = round( float( result[ 'result' ][ a_kraken_ticker ][ 'a' ][ 0 ] ), 3 )
-                except:
-                    print( 'An exception occurred retrieving prices.' )
-                    self.is_trading_locked = True
-                    return self.data
-            else:
-                new_row[ a_robinhood_ticker ] = round( float( randint( 10, 100 ) ), 3 )
-
-            self.data = self.data.append( new_row, ignore_index = True )
-
-            # If the Kraken API is overloaded, they freeze the values it returns
-            if ( ( self.data.tail( 4 )[ a_robinhood_ticker ].to_numpy()[ -1 ] == self.data.tail( 4 )[ a_robinhood_ticker ].to_numpy() ).all() ):
-                print( 'Repeating values detected for ' + str( a_robinhood_ticker ) + '. Ignoring data point.' )
-                self.data = self.data[:-1]
-            elif ( self.data.shape[ 0 ] > 0 ):
-                self.data[ a_robinhood_ticker + '_SMA_F' ] = self.data[ a_robinhood_ticker ].shift( 1 ).rolling( window = config[ 'moving_average_periods' ][ 'sma_fast' ] ).mean()
-                self.data[ a_robinhood_ticker + '_SMA_S' ] = self.data[ a_robinhood_ticker ].shift( 1 ).rolling( window = config[ 'moving_average_periods' ][ 'sma_slow' ] ).mean()
-                self.data[ a_robinhood_ticker + '_RSI' ] = RSI( self.data[ a_robinhood_ticker ].values, timeperiod = config[ 'rsi_period' ] )
-                self.data[ a_robinhood_ticker + '_MACD' ], self.data[ a_robinhood_ticker + '_MACD_S' ], macd_hist = MACD( self.data[ a_robinhood_ticker ].values, fastperiod = config[ 'moving_average_periods' ][ 'macd_fast' ], slowperiod = config[ 'moving_average_periods' ][ 'macd_slow' ], signalperiod = config[ 'moving_average_periods' ][ 'macd_signal' ] )
-
-            if ( config[ 'save_charts' ] == True ):
-                slice = self.data[ [ a_robinhood_ticker, str( a_robinhood_ticker ) + '_SMA_F', str( a_robinhood_ticker ) + '_SMA_S' ] ]
-                fig = slice.plot.line().get_figure()
-                fig.savefig( 'chart-' + str( a_robinhood_ticker ).lower() + '-sma.png', dpi = 300 )
-                plt.close( fig )
-
-        return self.data
-
-    def get_available_cash( self ):
-        available_cash = -1.0
-
-        if ( not config[ 'debug_enabled' ] ):
-            try:
-                me = rh.account.load_phoenix_account( info=None )
-                available_cash = round( float( me[ 'crypto_buying_power' ][ 'amount' ] ) - config[ 'reserve' ], 3 )
-            except:
-                print( 'An exception occurred while reading available cash amount.' )
-        else:
-            self.available_cash = randint( 1000, 5000 ) + config[ 'reserve' ]
-
-        return available_cash
-
     def cancel_order( self, order_id ):
         if ( not config[ 'debug_enabled' ] ):
             try:
@@ -405,3 +326,78 @@ class checker:
     def check_order_status(self,order_id): #
         # update the order status from robinhood for the order that is referenced with "order_id".
         return
+    def is_data_consistent( self, now ):
+        if ( self.data.shape[ 0 ] <= 1 ):
+            return False
+
+        # Check for break between now and last sample
+        timediff = now - datetime.strptime( self.data.iloc[ -1 ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
+
+        # Not enough data points available or it's been too long since we recorded any data
+        if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
+            return False
+
+        # Check for break in sequence of samples to minimum consecutive sample number
+        position = len( self.data ) - 1
+        if ( position >= self.min_consecutive_samples ):
+            for x in range( 0, self.min_consecutive_samples ):
+                timediff = datetime.strptime( self.data.iloc[ position - x ][ 'timestamp' ], '%Y-%m-%d %H:%M' ) - datetime.strptime( self.data.iloc[ position - ( x + 1 ) ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
+
+                if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
+                    print( 'Holding trades: interruption found in price data.' )
+                    return False
+
+        return True
+    def get_new_data( self, now ):
+        new_row = {}
+
+        self.is_trading_locked = False
+        new_row[ 'timestamp' ] = now.strftime( "%Y-%m-%d %H:%M" )
+
+        # Calculate moving averages and RSI values
+        for a_kraken_ticker, a_robinhood_ticker in config[ 'ticker_list' ].items():
+            if ( not config[ 'debug_enabled' ] ):
+                try:
+                    result = get_json( 'https://api.kraken.com/0/public/Ticker?pair=' + str( a_kraken_ticker ) ).json()
+
+                    if ( len( result[ 'error' ] ) == 0 ):
+                        new_row[ a_robinhood_ticker ] = round( float( result[ 'result' ][ a_kraken_ticker ][ 'a' ][ 0 ] ), 3 )
+                except:
+                    print( 'An exception occurred retrieving prices.' )
+                    self.is_trading_locked = True
+                    return self.data
+            else:
+                new_row[ a_robinhood_ticker ] = round( float( randint( 10, 100 ) ), 3 )
+
+            self.data = self.data.append( new_row, ignore_index = True )
+
+            # If the Kraken API is overloaded, they freeze the values it returns
+            if ( ( self.data.tail( 4 )[ a_robinhood_ticker ].to_numpy()[ -1 ] == self.data.tail( 4 )[ a_robinhood_ticker ].to_numpy() ).all() ):
+                print( 'Repeating values detected for ' + str( a_robinhood_ticker ) + '. Ignoring data point.' )
+                self.data = self.data[:-1]
+            elif ( self.data.shape[ 0 ] > 0 ):
+                self.data[ a_robinhood_ticker + '_SMA_F' ] = self.data[ a_robinhood_ticker ].shift( 1 ).rolling( window = config[ 'moving_average_periods' ][ 'sma_fast' ] ).mean()
+                self.data[ a_robinhood_ticker + '_SMA_S' ] = self.data[ a_robinhood_ticker ].shift( 1 ).rolling( window = config[ 'moving_average_periods' ][ 'sma_slow' ] ).mean()
+                self.data[ a_robinhood_ticker + '_RSI' ] = RSI( self.data[ a_robinhood_ticker ].values, timeperiod = config[ 'rsi_period' ] )
+                self.data[ a_robinhood_ticker + '_MACD' ], self.data[ a_robinhood_ticker + '_MACD_S' ], macd_hist = MACD( self.data[ a_robinhood_ticker ].values, fastperiod = config[ 'moving_average_periods' ][ 'macd_fast' ], slowperiod = config[ 'moving_average_periods' ][ 'macd_slow' ], signalperiod = config[ 'moving_average_periods' ][ 'macd_signal' ] )
+
+            if ( config[ 'save_charts' ] == True ):
+                slice = self.data[ [ a_robinhood_ticker, str( a_robinhood_ticker ) + '_SMA_F', str( a_robinhood_ticker ) + '_SMA_S' ] ]
+                fig = slice.plot.line().get_figure()
+                fig.savefig( 'chart-' + str( a_robinhood_ticker ).lower() + '-sma.png', dpi = 300 )
+                plt.close( fig )
+
+        return self.data
+    def get_available_cash( self ):
+        available_cash = -1.0
+
+        if ( not config[ 'debug_enabled' ] ):
+            try:
+                me = rh.account.load_phoenix_account( info=None )
+                available_cash = round( float( me[ 'crypto_buying_power' ][ 'amount' ] ) - config[ 'reserve' ], 3 )
+            except:
+                print( 'An exception occurred while reading available cash amount.' )
+        else:
+            self.available_cash = randint( 1000, 5000 ) + config[ 'reserve' ]
+
+        return available_cash
