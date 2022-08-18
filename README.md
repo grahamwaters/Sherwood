@@ -116,7 +116,27 @@ Great question, let's go through some of the elements of the config.py file befo
 ```
 [thanks to Jason for this list of variables](https://github.com/cryptoTradingBot.git)
 
+## Running Sherwood
+To run your Sherwood bot you will simply create the appropriate objects and use the **run()** method of the class 'trader'.
+```python
+  LittleJohn = trader() # create a trader named 'LittleJohn'
+  LittleJohn.run() # LittleJohn is now running through the forest.
+  # Can't resist: (oodillally oodillally golly what a day)
+```
 
+Information about the bot's state is also saved in three pickle files, so that if you stop and restart it, it will continue from where it left off:
+
+> `nohup ./bot.py &`
+
+The overall flow looks like this:
+* Load the configuration and initialize or load a previously saved state
+* Load saved data points or download new ones from Kraken
+* Every 5 minutes (you can customize this in the settings), download the latest price info from Kraken for each coin
+* Compute [moving averages](https://www.investopedia.com/terms/m/movingaverage.asp) and [RSI](https://www.investopedia.com/terms/r/rsi.asp), making sure that there haven't been any interruptions in the data sequence
+* If the conditions to buy or sell are met, submit the corresponding order
+* Rinse and repeat
+
+The bot maintains a list of purchased assets (saved as `orders.pickle`) and at each iteration, it determines if the conditions to sell any of them are met. It also handles swing and miss orders, by checking if any of the orders placed during the previous iteration are still pending (not filled), and cancels them.
 
 
 
