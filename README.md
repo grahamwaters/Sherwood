@@ -50,6 +50,71 @@ The checker class is an important part of Sherwood. Any actions that involve ask
 * updating current crypto holdings
 * checking the status of an order
 
+## Installation
+This code uses Python3. First, install the following dependencies:
+* [Robin-Stocks](http://www.robin-stocks.com/en/latest/quickstart.html): `pip3 install robin_stocks`
+* [Pandas](https://pandas.pydata.org/pandas-docs/stable/index.html): `pip3 install pandas`
+* [TA-Lib](https://www.ta-lib.org/): download their tarball and compile it
+
+Now make a file called config.py and put the following in it:
+```python
+config = {
+    'username': 'your email here', # Robinhood credentials
+    'password': 'your password here', # Robinhood credentials
+    'trades_enabled': True, # if False, just collect data
+    'debug_enabled': True, # if enabled, just pretend to connect to Robinhood
+    'ticker_list': { # list of coin ticker pairs Kraken/Robinhood (XETHZUSD/ETH, etc) - https://api.kraken.com/0/public/AssetPairs
+        'XETHZUSD': 'ETH',
+        'XXBTZUSD': 'BTC'
+    },
+    'trade_strategies': { # select which strategies would you like the bot to use (buy, sell); see documentation for more info
+        'buy': 'sma_rsi_threshold',
+        'sell': 'above_buy'
+    },
+    'buy_below_moving_average': 0.0075, # buy if price drops below Fast_MA by this percentage (0.75%)
+    'profit_percentage': 0.01, # sell if price raises above purchase price by this percentage (1%)
+    'buy_amount_per_trade': 0, # if greater than zero, buy this amount of coin, otherwise use all the cash in the account
+    'moving_average_periods': { # data points needed to calculate SMA fast, SMA slow, MACD fast, MACD slow, MACD signal
+        'sma_fast': 24, # 12 data points per hour, 2 hours worth of data
+        'sma_slow': 96,
+        'macd_fast': 24,
+        'macd_slow': 52, # MACD 12/26 -> 24/52
+        'macd_signal': 14
+    },
+    'rsi_period': 48, # data points for RSI
+    'rsi_threshold': { # RSI thresholds to trigger a buy or a sell order
+        'buy': 39.5,
+        'sell': 60
+    },
+    'reserve': 5.00, # tell the bot if you don't want it to use all of the available cash in your account
+    'stop_loss_threshold': 0.05,   # sell if the price drops at least 5% below the purchase price
+    'minutes_between_updates': 1, # 1 (default), 5, 15, 30, 60, 240, 1440, 10080, 21600
+    'save_charts': False,
+    'max_data_rows': 10000
+}
+
+```
+Once dependencies have been installed and the config.py file contains (at least) your login credentials, you can run the bot. But how do you run it?
+Great question, let's go through some of the elements of the config.py file before we dive into the weeds of running the Sherwood bot (See the forest for the trees if you will).
+```python
+* (string) `username` and `password`: Robinhood credentials
+* (bool) `trades_enabled`:  If False, run in test mode and just collect data, otherwise submit orders
+* (bool) `debug_enabled`: Simulate interactions with Robinhood (via random values)
+* (list) `ticker_list`: List of coin ticker pairs Kraken/Robinhood (XETHZUSD/ETH, etc); see [here](https://api.kraken.com/0/public/AssetPairs) for a complete list of available tickers on Kraken
+* (dict) `trade_strategies`: Select which strategies would you like the bot to use (buy, sell)
+* (float) `buy_below_moving_average`: If the price dips below the MA by this percentage, and if the RSI is below the oversold threshold (see below), it will try to buy
+* (float) `sell_above_buy_price`: Once the price rises above the Buy price by this percentage, it will try to sell
+* (float) `buy_amount_per_trade`: If greater than zero, buy this amount of coin, otherwise use all the cash in the account
+* (dict) `moving_average_periods`: Number of MA observations to wait before sprinting into action, for each measure (SMA fast, SMA slow, MACD fast, MACD slow, MACD signal)
+* (int) `rsi_period`: Length of the observation window for calculating the RSI
+* (float) `rsi_buy_threshold`: Threshold below which the bot will try to buy
+* (float) `reserve`: By default, the bot will try to use all the funds available in your account to buy crypto; use this value if you want to set aside a given amount that the bot should not spend
+* (float) `stop_loss_threshold`: Threshold below which the bot will sell its holdings, regardless of any gains
+* (int) `minutes_between_updates`: How often should the bot spring into action (1 (default), 5, 15, 30, 60, 240, 1440, 10080, 21600)
+* (bool) `save_charts`: Enable this feature to have the bot save SMA charts for each coin it's handling
+* (int) `max_data_rows`: Max number of data points to store in the Pickle file (if you have issues with memory limits on your machine). 1k rows = 70kB
+```
+[thanks to Jason for this list of variables](https://github.com/cryptoTradingBot.git)
 
 
 
