@@ -51,7 +51,8 @@ The checker class is an important part of Sherwood. Any actions that involve ask
 * checking the status of an order
 
 ## Installation
-This code uses Python3. First, install the following dependencies:
+This code uses Python3. For our purposes you should create a conda environment using Python version 3.9.6. Name the environment: 'Sherwood'
+First, install the following dependencies:
 * [Robin-Stocks](http://www.robin-stocks.com/en/latest/quickstart.html): `pip3 install robin_stocks`
 * [Pandas](https://pandas.pydata.org/pandas-docs/stable/index.html): `pip3 install pandas`
 * [TA-Lib](https://www.ta-lib.org/): download their tarball and compile it
@@ -115,6 +116,13 @@ Great question, let's go through some of the elements of the config.py file befo
 * (int) `max_data_rows`: Max number of data points to store in the Pickle file (if you have issues with memory limits on your machine). 1k rows = 70kB
 ```
 [thanks to Jason for this list of variables](https://github.com/cryptoTradingBot.git)
+
+## Trading View Usage
+The bot will use the Trading View API in leau of Kraken for simplicity.
+[Trading View Symbols Reference](https://tvdb.brianthe.dev/)
+
+
+
 
 ## Running Sherwood
 To run your Sherwood bot you will simply create the appropriate objects and use the **run()** method of the class 'trader'.
