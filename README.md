@@ -25,7 +25,16 @@ So, in our functions.py file, we will define functions that meet the following c
 * are simple (have no more than two arguments)
 * perform a single action
 
+### The Record Class
+The Record class is a simple class that we will use to store the data we collect from each trade. It defines the following attributes:
+* crypto_ticker: the cryptocurrency ticker symbol
+* quantity: the quantity of the cryptocurrency that was traded
+* price: the price of the cryptocurrency at which it was traded
+* order_id: the order id of the trade
+* timestamp: the timestamp of the trade
+* order_type: the type of order (buy or sell)
 
+**(flex goal) status: the status of the trade (open, closed, or canceled)**
 
 ### The Trader Class
 The Trader class is the main class for Sherwood. Any actions that involve a volume (either in USD or in a coin) will be performed using methods defined in this class. It is responsible for the following:
