@@ -313,7 +313,6 @@ class trader:
 
         self.data.to_pickle( 'dataframe.pickle' )
 
-
 class checker:
     def __init__(self):
         return
