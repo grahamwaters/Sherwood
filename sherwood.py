@@ -173,6 +173,7 @@ class trader:
         print( 'Bot Ready' )
 
         return
+
     def cancel_order( self, order_id ):
         if ( not config[ 'debug_enabled' ] ):
             try:
