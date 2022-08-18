@@ -6,7 +6,8 @@ import numpy as np
 from tradingview_ta import TA_Handler, Interval
 from sherwood import checker, simulate_pausing
 
-class signals:
+
+class old_signals:
     def buy_sma_crossover_rsi(self, ticker, data):
         # Moving Average Crossover with RSI Filter
         # Credits: https://trader.autochartist.com/moving-average-crossover-with-rsi-filter/
@@ -100,7 +101,24 @@ class signals:
             >= asset.price + (asset.price * config["profit_percentage"])
         )
 
-    def trading_view_suggestion(self,ticker):
+
+class signals:  #
+    def __init__(self):  #
+        self.rsi_buy = False
+        self.rsi_sell = False
+        self.above_bought = False  # is current price above where we bought the coin?
+        self.current_rsi = 50  # current rsi value
+
+    def rsi_signaller(self, current_rsi):
+        # buy when RSI is below threshold for a 'buy'
+        if float(current_rsi) < float(config["rsi_threshold"]["buy"]):
+            return 1  # signal a buy when RSI is below threshold
+        elif float(current_rsi) > float(config["rsi_threshold"]["sell"]):
+            return -1  # signal a sell when RSI is above threshold
+        else:  # signal a neutral when RSI is in between thresholds
+            return 0  # do not buy or sell
+
+    def trading_view_suggestion(self, ticker):
         # Trading View suggestions for buying/selling/holding crypto
         """
         Takes in a ticker and returns a 1,-1, or 0 indicating whether or not to buy or sell the ticker. This is based on tradingview_ta data. The exchange this function utilizes is not Kraken. It is Coinbase.
@@ -117,15 +135,28 @@ class signals:
             interval=Interval.INTERVAL_15_MINUTES,
         )
         output_analysis = output.get_analysis()
-        dict2 = output_analysis.summary # get the summary dictionary. NOTE: Also available is the output_analysis.technical_indicators, for further analysis.
+        dict2 = (
+            output_analysis.summary
+        )  # get the summary dictionary. NOTE: Also available is the output_analysis.technical_indicators, for further analysis.
 
         buyScore = float(dict2["BUY"])
         sellScore = float(dict2["SELL"])
         neutralScore = float(dict2["NEUTRAL"])
 
-        if buyScore > sellScore and buyScore > neutralScore: # if more suggestions for buy than sell and neutral.
-            return 1 # buy
-        elif sellScore > buyScore and sellScore > neutralScore: # if more suggestions for sell than buy and neutral.
+        if (
+            buyScore > sellScore and buyScore > neutralScore
+        ):  # if more suggestions for buy than sell and neutral.
+            return 1  # buy
+        elif (
+            sellScore > buyScore and sellScore > neutralScore
+        ):  # if more suggestions for sell than buy and neutral.
             return -1
-        else: #
-            return 0 # do not buy but don't sell either. This means that the ticker is neutral.
+        else:  #
+            return 0  # do not buy but don't sell either. This means that the ticker is neutral.
+
+    def above_bought_signaller(self, current_price):
+        # buy when price is above where we bought the coin
+        if float(current_price) > float(self.above_bought):
+            return 1  # signal a buy when price is above where we bought the coin
+        else:  # signal a neutral when price is below where we bought the coin
+            return 0

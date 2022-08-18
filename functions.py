@@ -1,9 +1,5 @@
-
 def buy(self, ticker):
-    if (
-        self.available_cash < config["buy_amount_per_trade"]
-        or self.is_trading_locked
-    ):
+    if self.available_cash < config["buy_amount_per_trade"] or self.is_trading_locked:
         return False
 
     # Values need to be specified to no more precision than listed in min_price_increments.
@@ -33,14 +29,13 @@ def buy(self, ticker):
             buy_info = r.order_buy_crypto_limit(str(ticker), quantity, price)
 
             # Add this new asset to our orders
-            self.orders[buy_info["id"]] = asset(
-                ticker, quantity, price, buy_info["id"]
-            )
+            self.orders[buy_info["id"]] = asset(ticker, quantity, price, buy_info["id"])
         except:
             print("Got exception trying to buy, aborting.")
             return False
 
     return True
+
 
 def sell(self, asset):
     # Do we have enough of this asset to sell?
@@ -51,8 +46,7 @@ def sell(self, asset):
     # Truncate to 7 decimal places to avoid floating point problems way out at the precision limit
     price = round(
         floor(
-            self.data.iloc[-1][asset.ticker]
-            / self.min_price_increments[asset.ticker]
+            self.data.iloc[-1][asset.ticker] / self.min_price_increments[asset.ticker]
         )
         * self.min_price_increments[asset.ticker],
         7,
@@ -84,6 +78,7 @@ def sell(self, asset):
             return False
 
     return True
+
 
 def run(self):
     now = datetime.now()
@@ -119,9 +114,7 @@ def run(self):
                 try:
                     open_orders = r.get_all_open_crypto_orders()
                 except:
-                    print(
-                        "An exception occurred while retrieving list of open orders."
-                    )
+                    print("An exception occurred while retrieving list of open orders.")
                     open_orders = []
 
                 for a_order in open_orders:
@@ -158,8 +151,7 @@ def run(self):
                         + " | Current value: $"
                         + str(
                             round(
-                                self.data.iloc[-1][a_asset.ticker]
-                                * a_asset.quantity,
+                                self.data.iloc[-1][a_asset.ticker] * a_asset.quantity,
                                 3,
                             )
                         )

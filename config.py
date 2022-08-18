@@ -23,12 +23,12 @@ config = {
     },
     'rsi_period': 48, # data points for RSI
     'rsi_threshold': { # RSI thresholds to trigger a buy or a sell order
-        'buy': 39.5,
-        'sell': 60
+        'buy': 20,
+        'sell': 75
     },
     'reserve': 5.00, # tell the bot if you don't want it to use all of the available cash in your account
     'stop_loss_threshold': 0.05,   # sell if the price drops at least 5% below the purchase price
-    'minutes_between_updates': 1, # 1 (default), 5, 15, 30, 60, 240, 1440, 10080, 21600
+    'minutes_between_updates': 15, # 1 (default), 5, 15, 30, 60, 240, 1440, 10080, 21600
     'save_charts': False,
     'max_data_rows': 10000
 }
