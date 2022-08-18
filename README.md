@@ -1,5 +1,19 @@
 # Sherwood:
 ---
+Before you start using Sherwood, you need to understand the following:
+Cryptocurrency investing is inherently risky. Doing it with code you didn’t write, understand, or know how to modify is a **really bad** idea.
+
+What you do with this code is entirely up to you, and any risks you take are your own. It’s intended to be educational and comes with absolutely no guarantee of anything at all. If you use this code, you assume all responsibility for your own actions.
+
+But have fun.
+
+---
+
+Jason Bowling makes several salient points about using a bot for this purpose in his article on Medium.com.
+>Every time you issue a call that talks to the server — getting prices, issuing an order, checking status — check for exceptions. Every. Single. Time (Bowling, 2020).
+
+We will be using the try/except pattern often in this code to prevent any code blockages due to uncaught exceptions.
+
 ### *simple trading with simple logic*
 The goal for Sherwood is to create as simple a trading bot as possible. This being said, there are certain aspects of trading that make the usage of a bot complex. The following is a list of some of the more complex aspects of trading with a bot.
 * signals
@@ -35,3 +49,6 @@ Jason Crouse does a great job outlining the technical indicators in his readme f
 > Backtesting is the process of testing a trading or investment strategy using data from the past to see how it would have performed. For example, let's say your trading strategy is to buy Bitcoin when it falls 3% in a day, your backtest software will check Bitcoin's prices in the past and fire a trade when it fell 3% in a day. The backtest results will show if the trades were profitable. At this time, this bot doesn't offer an easy way to ingest past data and run simulations, but it's something I have on my wishlist for sure.
 
 [His Repository is included here](https://github.com/JasonRBowling/cryptoTradingBot.git)
+
+Works Cited
+* https://medium.com/swlh/design-lessons-from-my-first-crypto-trading-bot-fcf654b99546
