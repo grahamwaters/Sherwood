@@ -448,5 +448,6 @@ class checker:
 
 
 if __name__ == '__main__':
+    MaidMarian = checker() # initialize the checker object
     LittleJohn = trader() # initialize the trader class
     LittleJohn.run() # run the trader class
