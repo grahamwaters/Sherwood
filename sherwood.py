@@ -7,6 +7,7 @@
 from config import config
 from signals import signals
 import pandas as pd
+from tradingview_ta import TA_Handler, Interval
 
 class record:
     crypto_ticker = '' # the ticker for the coin on Robinhood.
@@ -401,7 +402,17 @@ class checker:
             self.available_cash = randint( 1000, 5000 ) + config[ 'reserve' ]
 
         return available_cash
-
+    def retrieve_indicators(symbol,
+                            screener='crypto',
+                            interval=Interval.INTERVAL_1_DAY,
+                            exchange='BITFINEX'):
+        try:
+            ta_handler = TA_Handler(symbol, interval, exchange)
+            result = ta_handler.get_analysis().indicators # this result can be parsed for the indicators desired.
+            return result
+        except Exception as e:
+            print(e)
+            return None
 
 if __name__ == '__main__':
     LittleJohn = trader() # initialize the trader class
