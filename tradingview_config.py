@@ -1,4 +1,5 @@
 exchanges_dict = {
+    'BTCUSD': 'KRAKEN',
     'ETHUSD': 'BITFLYER',
     'DOGEUSD':'OKCOIN',
     'ETCUSD':'EXMO',

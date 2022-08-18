@@ -4,12 +4,14 @@
 # Version 1.1.0
 # Graham Waters
 
+import time, random
 from config import config
 from signals import signals
 from tradingview_config import exchanges_dict # this contains the exchange names for each currency pair.
 import pandas as pd
 from tradingview_ta import TA_Handler, Interval, Exchange
-
+import tradingview_ta
+simulate_pausing = False # set to True to simulate pausing the bot for debugging purposes.
 class record:
     crypto_ticker = '' # the ticker for the coin on Robinhood.
     quantity = 0.0 # the quantity of the coin that was bought/sold.
@@ -318,7 +320,7 @@ class trader:
 
 class checker:
     def __init__(self):
-        return
+        self.stats_dict = {} # Dictionary to hold stats for each ticker
     def check_price(self,ticker):
         ticker_price = 0 # update with code for a query to robinhood
         return ticker_price
@@ -419,21 +421,28 @@ class checker:
         Returns:
             _type_: _description_
         """
-        try:
-            ta_handler = TA_Handler(symbol, interval, exchange)
-            result = ta_handler.get_analysis().indicators # this result can be parsed for the indicators desired.
-            return result
-        except Exception as e:
-            print(e)
-            return None
+        coin_data = TA_Handler(symbol=symbol,
+                                exchange=exchange,
+                                screener=screener,
+                                interval=interval,
+                                timeout=None
+                                )
+        result = coin_data.get_analysis().indicators # this result can be parsed for the indicators desired.
+        return result
+    def get_tradingview_statsdict(self,tickers): #
+            stats_dict = {} # will hold technical analysis results for each currency pair. updated every iteration.
+            tickers = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',"XLM",'LTC','LINK']
+            coins_with_base = [str(str(coin)+'USD') for coin in tickers]
+            for ticker in coins_with_base: # loop through each currency pair.
+                res = checker.retrieve_indicators(ticker) #*get the technical analysis results for the coin designated by the variable: "ticker"
+                # res contains the indicators for the ticker
+                stats_dict[ticker] = res # add results to our stats dictionary
+                if simulate_pausing:
+                    time.sleep(random.randint(1,3)) # sleep for a random amount of time between 1 and 3 seconds.
+            self.stats_dict = stats_dict # update the dictionary of technical analysis results.
 
-tickers = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',"XLM",'LTC','LINK']
-for ticker in tickers: #
-    res = checker.retrieve_indicators(ticker,
-                              'crypto',
-                              Interval.INTERVAL_15_MINUTES,
-                              exchanges_dict[f'{ticker}USD'])
-    # res contains the indicators for the ticker
+
+
 
 
 

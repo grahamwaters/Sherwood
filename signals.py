@@ -1,8 +1,10 @@
 from config import config
 from math import isnan
 import pandas as pd
+import time, random
 import numpy as np
 from tradingview_ta import TA_Handler, Interval
+from sherwood import checker, simulate_pausing
 
 class signals:
     def buy_sma_crossover_rsi(self, ticker, data):
