@@ -401,3 +401,8 @@ class checker:
             self.available_cash = randint( 1000, 5000 ) + config[ 'reserve' ]
 
         return available_cash
+
+
+if __name__ == '__main__':
+    LittleJohn = trader() # initialize the trader class
+    LittleJohn.run() # run the trader class
