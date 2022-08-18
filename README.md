@@ -25,6 +25,8 @@ So, in our functions.py file, we will define functions that meet the following c
 * are simple (have no more than two arguments)
 * perform a single action
 
+
+
 ### The Trader Class
 The Trader class is the main class for Sherwood. Any actions that involve a volume (either in USD or in a coin) will be performed using methods defined in this class. It is responsible for the following:
 * buying a cryptocurrency by amount in USD
@@ -32,7 +34,11 @@ The Trader class is the main class for Sherwood. Any actions that involve a volu
 * selling a cryptocurrency by amount in USD **(unusual behavior)**
 * selling a cryptocurrency by volume in COIN
 
-
+### The Checker Class
+The checker class is an important part of Sherwood. Any actions that involve asking Robinhood for information will be performed using methods defined in this class. It is responsible for the following:
+* checking the price of a cryptocurrency
+* updating current crypto holdings
+* checking the status of an order
 
 
 
