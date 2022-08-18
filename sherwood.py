@@ -173,30 +173,6 @@ class trader:
         print( 'Bot Ready' )
 
         return
-
-    def is_data_consistent( self, now ):
-        if ( self.data.shape[ 0 ] <= 1 ):
-            return False
-
-        # Check for break between now and last sample
-        timediff = now - datetime.strptime( self.data.iloc[ -1 ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
-
-        # Not enough data points available or it's been too long since we recorded any data
-        if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
-            return False
-
-        # Check for break in sequence of samples to minimum consecutive sample number
-        position = len( self.data ) - 1
-        if ( position >= self.min_consecutive_samples ):
-            for x in range( 0, self.min_consecutive_samples ):
-                timediff = datetime.strptime( self.data.iloc[ position - x ][ 'timestamp' ], '%Y-%m-%d %H:%M' ) - datetime.strptime( self.data.iloc[ position - ( x + 1 ) ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
-
-                if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
-                    print( 'Holding trades: interruption found in price data.' )
-                    return False
-
-        return True
-
     def get_new_data( self, now ):
         new_row = {}
 
@@ -392,7 +368,6 @@ class trader:
 
         self.data.to_pickle( 'dataframe.pickle' )
 
-
 class checker:
     def __init__(self):
         return
@@ -405,3 +380,25 @@ class checker:
     def check_order_status(self,order_id): #
         # update the order status from robinhood for the order that is referenced with "order_id".
         return
+    def is_data_consistent( self, now ):
+        if ( self.data.shape[ 0 ] <= 1 ):
+            return False
+
+        # Check for break between now and last sample
+        timediff = now - datetime.strptime( self.data.iloc[ -1 ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
+
+        # Not enough data points available or it's been too long since we recorded any data
+        if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
+            return False
+
+        # Check for break in sequence of samples to minimum consecutive sample number
+        position = len( self.data ) - 1
+        if ( position >= self.min_consecutive_samples ):
+            for x in range( 0, self.min_consecutive_samples ):
+                timediff = datetime.strptime( self.data.iloc[ position - x ][ 'timestamp' ], '%Y-%m-%d %H:%M' ) - datetime.strptime( self.data.iloc[ position - ( x + 1 ) ][ 'timestamp' ], '%Y-%m-%d %H:%M' )
+
+                if ( timediff.seconds > config[ 'minutes_between_updates' ] * 120 ):
+                    print( 'Holding trades: interruption found in price data.' )
+                    return False
+
+        return True
