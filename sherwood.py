@@ -391,3 +391,17 @@ class trader:
             pickle.dump( self.orders, f )
 
         self.data.to_pickle( 'dataframe.pickle' )
+
+
+class checker:
+    def __init__(self):
+        return
+    def check_price(self,ticker):
+        ticker_price = 0 # update with code for a query to robinhood
+        return ticker_price
+    def update_holdings(self,holdings_df):
+        # update the holdings from robinhood.
+        return
+    def check_order_status(self,order_id): #
+        # update the order status from robinhood for the order that is referenced with "order_id".
+        return
