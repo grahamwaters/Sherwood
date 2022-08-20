@@ -1,0 +1,304 @@
+[
+    {
+        "label": "floor",
+        "importPath": "math",
+        "description": "math",
+        "isExtraImport": true,
+        "detail": "math",
+        "documentation": {}
+    },
+    {
+        "label": "isnan",
+        "importPath": "math",
+        "description": "math",
+        "isExtraImport": true,
+        "detail": "math",
+        "documentation": {}
+    },
+    {
+        "label": "pickle",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pickle",
+        "description": "pickle",
+        "detail": "pickle",
+        "documentation": {}
+    },
+    {
+        "label": "time,",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time.",
+        "description": "time.",
+        "detail": "time.",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "importPath": "config",
+        "description": "config",
+        "isExtraImport": true,
+        "detail": "config",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "importPath": "config",
+        "description": "config",
+        "isExtraImport": true,
+        "detail": "config",
+        "documentation": {}
+    },
+    {
+        "label": "exchanges_dict",
+        "importPath": "tradingview_config",
+        "description": "tradingview_config",
+        "isExtraImport": true,
+        "detail": "tradingview_config",
+        "documentation": {}
+    },
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "tradingview_ta",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "TA_Handler",
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "isExtraImport": true,
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "Interval",
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "isExtraImport": true,
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "Exchange",
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "isExtraImport": true,
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "TA_Handler",
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "isExtraImport": true,
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "Interval",
+        "importPath": "tradingview_ta",
+        "description": "tradingview_ta",
+        "isExtraImport": true,
+        "detail": "tradingview_ta",
+        "documentation": {}
+    },
+    {
+        "label": "*",
+        "importPath": "robin_stocks",
+        "description": "robin_stocks",
+        "isExtraImport": true,
+        "detail": "robin_stocks",
+        "documentation": {}
+    },
+    {
+        "label": "robin_stocks.robinhood",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "robin_stocks.robinhood",
+        "description": "robin_stocks.robinhood",
+        "detail": "robin_stocks.robinhood",
+        "documentation": {}
+    },
+    {
+        "label": "os.path",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os.path",
+        "description": "os.path",
+        "detail": "os.path",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "checker",
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "isExtraImport": true,
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "simulate_pausing",
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "isExtraImport": true,
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "config",
+        "kind": 5,
+        "importPath": "config",
+        "description": "config",
+        "peekOfCode": "config = {\n    'username': 'graham.waters37@gmail.com', # Robinhood credentials\n    'password': '4grnTMvdVrdy9GR',\n    'trades_enabled': True, # if False, just collect data\n    'debug_enabled': True, # if enabled, just pretend to connect to Robinhood\n    'ticker_list': { # list of coin ticker pairs Kraken/Robinhood (XETHZUSD/ETH, etc) - https://api.kraken.com/0/public/AssetPairs\n        'XETHZUSD': 'ETH',\n        'XXBTZUSD': 'BTC'\n    },\n    'trade_strategies': { # select which strategies would you like the bot to use (buy, sell); see documentation for more info",
+        "detail": "config",
+        "documentation": {}
+    },
+    {
+        "label": "buy",
+        "kind": 2,
+        "importPath": "functions",
+        "description": "functions",
+        "peekOfCode": "def buy(self, ticker):\n    if self.available_cash < config[\"buy_amount_per_trade\"] or self.is_trading_locked:\n        return False\n    # Values need to be specified to no more precision than listed in min_price_increments.\n    # Truncate to 7 decimal places to avoid floating point problems way out at the precision limit\n    price = round(\n        floor(self.data.iloc[-1][ticker] / self.min_price_increments[ticker])\n        * self.min_price_increments[ticker],\n        7,\n    )",
+        "detail": "functions",
+        "documentation": {}
+    },
+    {
+        "label": "sell",
+        "kind": 2,
+        "importPath": "functions",
+        "description": "functions",
+        "peekOfCode": "def sell(self, asset):\n    # Do we have enough of this asset to sell?\n    if asset.quantity <= 0.0 or self.is_trading_locked:\n        return False\n    # Values needs to be specified to no more precision than listed in min_price_increments.\n    # Truncate to 7 decimal places to avoid floating point problems way out at the precision limit\n    price = round(\n        floor(\n            self.data.iloc[-1][asset.ticker] / self.min_price_increments[asset.ticker]\n        )",
+        "detail": "functions",
+        "documentation": {}
+    },
+    {
+        "label": "run",
+        "kind": 2,
+        "importPath": "functions",
+        "description": "functions",
+        "peekOfCode": "def run(self):\n    now = datetime.now()\n    self.data = self.get_new_data(now)\n    # Schedule the next iteration\n    Timer(config[\"minutes_between_updates\"] * 60, self.run).start()\n    # Print state\n    print(\n        \"-- \"\n        + str(datetime.now().strftime(\"%Y-%m-%d %H:%M\"))\n        + \" ---------------------\"",
+        "detail": "functions",
+        "documentation": {}
+    },
+    {
+        "label": "signals",
+        "kind": 6,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "class signals:  #\n    def __init__(self):  #\n        self.rsi_buy = False\n        self.rsi_sell = False\n        self.above_bought = False  # is current price above where we bought the coin?\n        self.current_rsi = 50  # current rsi value\n    def rsi_signaller(self, current_rsi):\n        # buy when RSI is below threshold for a 'buy'\n        if float(current_rsi) < float(config[\"rsi_threshold\"][\"buy\"]):\n            return 1  # signal a buy when RSI is below threshold",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "record",
+        "kind": 6,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "class record:\n    crypto_ticker = \"\"  # the ticker for the coin on Robinhood.\n    quantity = 0.0  # the quantity of the coin that was bought/sold.\n    price = 0.0  # the price at which the coin was bought/sold.\n    order_id = \"\"  # Robinhood order ID we create and save for this trade\n    timestamp = \"\"  # the time the trade was made\n    order_type = \"\"  # 'buy' or 'sell'\n    def __init__(self, crypto_ticker, quantity, price, order_id, timestamp, order_type):\n        \"\"\"\n        Initialize the record class with the crypto ticker, quantity, price, order_id, timestamp, and order_type.",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "trader",
+        "kind": 6,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "class trader:\n    default_config = {\n        \"username\": \"\",\n        \"password\": \"\",\n        \"trades_enabled\": False,\n        \"debug_enabled\": False,\n        \"ticker_list\": {\"XETHZUSD\": \"ETH\"},\n        \"trade_strategies\": {\"buy\": \"sma_rsi_threshold\", \"sell\": \"above_buy\"},\n        \"buy_below_moving_average\": 0.0075,\n        \"profit_percentage\": 0.01,",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "checker",
+        "kind": 6,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "class checker:\n    def __init__(self):\n        self.stats_dict = {}  # Dictionary to hold stats for each ticker\n    def check_price(self, ticker):\n        ticker_price = 0  # update with code for a query to robinhood\n        return ticker_price\n    def update_holdings(self, holdings_df):\n        # update the holdings from robinhood.\n        return\n    def check_order_status(self, order_id):  #",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "thief",
+        "kind": 6,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "class thief:\n    # There are several options available\n    # 1. robin_stocks.robinhood.orders.order_buy_crypto_limit(symbol, quantity, limitPrice, timeInForce='gtc', jsonify=True)\n    #* Submits a limit order for a crypto by specifying the decimal amount of shares to buy. Good for share fractions up to 8 decimal places.\n    # 2. robin_stocks.robinhood.orders.order_buy_crypto_by_quantity(symbol, quantity, timeInForce='gtc', jsonify=True)\n    #* Submits a market order for a crypto by specifying the decimal amount of shares to buy. Good for share fractions up to 8 decimal places.\n    # 3. robin_stocks.robinhood.orders.order_buy_crypto_limit_by_price(symbol, amountInDollars, limitPrice, timeInForce='gtc', jsonify=True)[source]\n    #* Submits a limit order for a crypto by specifying the decimal price to buy. Good for share fractions up to 8 decimal places.\n    # 4. robin_stocks.robinhood.orders.order_buy_crypto_limit_by_price(symbol, amountInDollars, limitPrice, timeInForce='gtc', jsonify=True)[source]\n    #* Submits a limit order for a crypto by specifying the decimal price to buy. Good for share fractions up to 8 decimal places.",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "simulate_pausing",
+        "kind": 5,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "simulate_pausing = False  # set to True to simulate pausing the bot for debugging purposes.\nclass signals:  #\n    def __init__(self):  #\n        self.rsi_buy = False\n        self.rsi_sell = False\n        self.above_bought = False  # is current price above where we bought the coin?\n        self.current_rsi = 50  # current rsi value\n    def rsi_signaller(self, current_rsi):\n        # buy when RSI is below threshold for a 'buy'\n        if float(current_rsi) < float(config[\"rsi_threshold\"][\"buy\"]):",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "bought_prices",
+        "kind": 5,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "bought_prices = {}\nbought_signals = {}\nif __name__ == \"__main__\":\n    login = r.login(config['username'], config['password'])\n    MaidMarian = checker()  # initialize the checker object\n    #LittleJohn = trader()  # initialize the trader class\n    Sherrif = thief() # initialize the thief class\n    bought = False\n    coin_names = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',\"XLM\",'LTC','LINK']\n    while True:",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "bought_signals",
+        "kind": 5,
+        "importPath": "sherwood",
+        "description": "sherwood",
+        "peekOfCode": "bought_signals = {}\nif __name__ == \"__main__\":\n    login = r.login(config['username'], config['password'])\n    MaidMarian = checker()  # initialize the checker object\n    #LittleJohn = trader()  # initialize the trader class\n    Sherrif = thief() # initialize the thief class\n    bought = False\n    coin_names = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',\"XLM\",'LTC','LINK']\n    while True:\n        print(\"Running Over The Coins...\")",
+        "detail": "sherwood",
+        "documentation": {}
+    },
+    {
+        "label": "old_signals",
+        "kind": 6,
+        "importPath": "signals",
+        "description": "signals",
+        "peekOfCode": "class old_signals:\n    def buy_sma_crossover_rsi(self, ticker, data):\n        # Moving Average Crossover with RSI Filter\n        # Credits: https://trader.autochartist.com/moving-average-crossover-with-rsi-filter/\n        # Buy when Fast-SMA crosses Slow-SMA from below, and stays above for 3 consecutive readings, and RSI > buy threshold (50 suggested)\n        return (\n            # Make sure the data is valid\n            not isnan(data.iloc[-1][ticker + \"_SMA_F\"])\n            and not isnan(data.iloc[-2][ticker + \"_SMA_F\"])\n            and not isnan(data.iloc[-3][ticker + \"_SMA_F\"])",
+        "detail": "signals",
+        "documentation": {}
+    },
+    {
+        "label": "signals",
+        "kind": 6,
+        "importPath": "signals",
+        "description": "signals",
+        "peekOfCode": "class signals:  #\n    def __init__(self):  #\n        self.rsi_buy = False\n        self.rsi_sell = False\n        self.above_bought = False  # is current price above where we bought the coin?\n        self.current_rsi = 50  # current rsi value\n    def rsi_signaller(self, current_rsi):\n        # buy when RSI is below threshold for a 'buy'\n        if float(current_rsi) < float(config[\"rsi_threshold\"][\"buy\"]):\n            return 1  # signal a buy when RSI is below threshold",
+        "detail": "signals",
+        "documentation": {}
+    },
+    {
+        "label": "exchanges_dict",
+        "kind": 5,
+        "importPath": "tradingview_config",
+        "description": "tradingview_config",
+        "peekOfCode": "exchanges_dict = {\n    'BTCUSD': 'KRAKEN',\n    'ETHUSD': 'BITFLYER',\n    'DOGEUSD':'OKCOIN',\n    'ETCUSD':'EXMO',\n    'SHIBUSD':'GEMINI',\n    'MATICUSD':'GEMINI',\n    'UNIUSD':'BITFINEX', #todo -- this is a guess\n    'XMLUSD':'KRAKEN',\n    'LTCUSD':'EXMO',",
+        "detail": "tradingview_config",
+        "documentation": {}
+    }
+]
