@@ -5,9 +5,10 @@
 # Graham Waters
 
 from math import floor
+import pickle
 import time, random
 from config import config
-from signals import signals
+
 from tradingview_config import (
     exchanges_dict,
 )  # this contains the exchange names for each currency pair.
@@ -16,11 +17,66 @@ from tradingview_ta import TA_Handler, Interval, Exchange
 import tradingview_ta
 from robin_stocks import *  # get all functions from robin_stocks
 import robin_stocks.robinhood as r
+import os.path as path
 
-simulate_pausing = (
-    False  # set to True to simulate pausing the bot for debugging purposes.
-)
 
+simulate_pausing = False  # set to True to simulate pausing the bot for debugging purposes.
+
+class signals:  #
+    def __init__(self):  #
+        self.rsi_buy = False
+        self.rsi_sell = False
+        self.above_bought = False  # is current price above where we bought the coin?
+        self.current_rsi = 50  # current rsi value
+    def rsi_signaller(self, current_rsi):
+        # buy when RSI is below threshold for a 'buy'
+        if float(current_rsi) < float(config["rsi_threshold"]["buy"]):
+            return 1  # signal a buy when RSI is below threshold
+        elif float(current_rsi) > float(config["rsi_threshold"]["sell"]):
+            return -1  # signal a sell when RSI is above threshold
+        else:  # signal a neutral when RSI is in between thresholds
+            return 0  # do not buy or sell
+    def trading_view_suggestion(self, ticker):
+        # Trading View suggestions for buying/selling/holding crypto
+        """
+        Takes in a ticker and returns a 1,-1, or 0 indicating whether or not to buy or sell the ticker. This is based on tradingview_ta data. The exchange this function utilizes is not Kraken. It is Coinbase.
+
+        Args:
+            ticker (str): the ticker of the crypto to check.
+        """
+        assert type(ticker) == str
+        pos_df = pd.DataFrame()  # hold the ta data for all of the tickers
+        output = TA_Handler(
+            symbol=f"{ticker.upper()}USD",
+            screener="Crypto",
+            exchange="COINBASE",
+            interval=Interval.INTERVAL_15_MINUTES,
+        )
+        output_analysis = output.get_analysis()
+        dict2 = (
+            output_analysis.summary
+        )  # get the summary dictionary. NOTE: Also available is the output_analysis.technical_indicators, for further analysis.
+
+        buyScore = float(dict2["BUY"])
+        sellScore = float(dict2["SELL"])
+        neutralScore = float(dict2["NEUTRAL"])
+
+        if (
+            buyScore > sellScore and buyScore > neutralScore
+        ):  # if more suggestions for buy than sell and neutral.
+            return 1  # buy
+        elif (
+            sellScore > buyScore and sellScore > neutralScore
+        ):  # if more suggestions for sell than buy and neutral.
+            return -1
+        else:  #
+            return 0  # do not buy but don't sell either. This means that the ticker is neutral.
+    def above_bought_signaller(self, current_price):
+        # buy when price is above where we bought the coin
+        if float(current_price) > float(self.above_bought):
+            return 1  # signal a buy when price is above where we bought the coin
+        else:  # signal a neutral when price is below where we bought the coin
+            return 0
 
 class record:
     crypto_ticker = ""  # the ticker for the coin on Robinhood.
@@ -78,7 +134,7 @@ class trader:
     available_cash = 0
     is_trading_locked = False  # used to determine if we have had a break in our incoming price data and hold buys if so
     is_new_order_added = False  # the bot performs certain cleanup operations after new orders are sent out
-    signal = signals()
+    #!signal = signals()
 
     def __init__(self):
         # Set Pandas to output all columns in the dataframe
@@ -123,71 +179,6 @@ class trader:
 
             # Only track up to a fixed amount of data points
             self.data = self.data.tail(config["max_data_rows"] - 1)
-        else:
-            # Download historical data from Kraken
-            column_names = ["timestamp"]
-
-            for a_robinhood_ticker in config["ticker_list"].values():
-                column_names.append(a_robinhood_ticker)
-
-            self.data = pd.DataFrame(columns=column_names)
-
-            for a_kraken_ticker, a_robinhood_ticker in config["ticker_list"].items():
-                try:
-                    result = get_json(
-                        "https://api.kraken.com/0/public/OHLC?interval="
-                        + str(config["minutes_between_updates"])
-                        + "&pair="
-                        + a_kraken_ticker
-                    ).json()
-                    historical_data = pd.DataFrame(result["result"][a_kraken_ticker])
-                    historical_data = historical_data[[0, 1]]
-
-                    # Be nice to the Kraken API
-                    sleep(3)
-                except:
-                    print(
-                        "An exception occurred retrieving historical data from Kraken."
-                    )
-
-                # Convert timestamps
-                self.data["timestamp"] = [
-                    datetime.fromtimestamp(x).strftime("%Y-%m-%d %H:%M")
-                    for x in historical_data[0]
-                ]
-
-                # Copy the data
-                self.data[a_robinhood_ticker] = [
-                    round(float(x), 3) for x in historical_data[1]
-                ]
-
-                # Calculate the indicators
-                self.data[a_robinhood_ticker + "_SMA_F"] = (
-                    self.data[a_robinhood_ticker]
-                    .shift(1)
-                    .rolling(window=config["moving_average_periods"]["sma_fast"])
-                    .mean()
-                )
-                self.data[a_robinhood_ticker + "_SMA_S"] = (
-                    self.data[a_robinhood_ticker]
-                    .shift(1)
-                    .rolling(window=config["moving_average_periods"]["sma_slow"])
-                    .mean()
-                )
-                self.data[a_robinhood_ticker + "_RSI"] = RSI(
-                    self.data[a_robinhood_ticker].values,
-                    timeperiod=config["rsi_period"],
-                )
-                (
-                    self.data[a_robinhood_ticker + "_MACD"],
-                    self.data[a_robinhood_ticker + "_MACD_S"],
-                    macd_hist,
-                ) = MACD(
-                    self.data[a_robinhood_ticker].values,
-                    fastperiod=config["moving_average_periods"]["macd_fast"],
-                    slowperiod=config["moving_average_periods"]["macd_slow"],
-                    signalperiod=config["moving_average_periods"]["macd_signal"],
-                )
 
         # Connect to RobinHood
         if not config["debug_enabled"]:
@@ -644,9 +635,248 @@ class checker:
         self.stats_dict = (
             stats_dict  # update the dictionary of technical analysis results.
         )
+    def trading_view_suggestion(self, ticker='BTC'):
+        # Trading View suggestions for buying/selling/holding crypto
+        """
+        Takes in a ticker and returns a 1,-1, or 0 indicating whether or not to buy or sell the ticker. This is based on tradingview_ta data. The exchange this function utilizes is not Kraken. It is Coinbase.
 
+        Args:
+            ticker (str): the ticker of the crypto to check.
+        """
+        assert type(ticker) == str
+        pos_df = pd.DataFrame()  # hold the ta data for all of the tickers
+        output = TA_Handler(
+            symbol=f"{ticker.upper()}USD",
+            screener="Crypto",
+            exchange="COINBASE",
+            interval=Interval.INTERVAL_1_MINUTE,
+        )
+        output_analysis = output.get_analysis()
+        dict2 = (
+            output_analysis.summary
+        )  # get the summary dictionary. NOTE: Also available is the output_analysis.technical_indicators, for further analysis.
+
+        buyScore = float(dict2["BUY"])
+        sellScore = float(dict2["SELL"])
+        neutralScore = float(dict2["NEUTRAL"])
+
+        if (
+            buyScore > sellScore and buyScore > neutralScore
+        ):  # if more suggestions for buy than sell and neutral.
+            return 1  # buy
+        elif (
+            sellScore > buyScore and sellScore > neutralScore
+        ):  # if more suggestions for sell than buy and neutral.
+            return -1
+        else:  #
+            return 0  # do not buy but don't sell either. This means that the ticker is neutral.
+
+class thief:
+    # There are several options available
+    # 1. robin_stocks.robinhood.orders.order_buy_crypto_limit(symbol, quantity, limitPrice, timeInForce='gtc', jsonify=True)
+    #* Submits a limit order for a crypto by specifying the decimal amount of shares to buy. Good for share fractions up to 8 decimal places.
+    # 2. robin_stocks.robinhood.orders.order_buy_crypto_by_quantity(symbol, quantity, timeInForce='gtc', jsonify=True)
+    #* Submits a market order for a crypto by specifying the decimal amount of shares to buy. Good for share fractions up to 8 decimal places.
+    # 3. robin_stocks.robinhood.orders.order_buy_crypto_limit_by_price(symbol, amountInDollars, limitPrice, timeInForce='gtc', jsonify=True)[source]
+    #* Submits a limit order for a crypto by specifying the decimal price to buy. Good for share fractions up to 8 decimal places.
+    # 4. robin_stocks.robinhood.orders.order_buy_crypto_limit_by_price(symbol, amountInDollars, limitPrice, timeInForce='gtc', jsonify=True)[source]
+    #* Submits a limit order for a crypto by specifying the decimal price to buy. Good for share fractions up to 8 decimal places.
+    # 5.  robin_stocks.robinhood.orders.order_crypto(symbol, side, quantityOrPrice, amountIn='quantity', limitPrice=None, timeInForce='gtc', jsonify=True)[source]
+    '''
+    Submits an order for a crypto.
+        Parameters:
+
+            symbol (str) – The crypto ticker of the crypto to trade.
+            side (str) – Either ‘buy’ or ‘sell’
+            quantityOrPrice (float) – Either the decimal price of shares to trade or the decimal quantity of shares.
+            amountIn (Optional[str]) – If left default value of ‘quantity’, order will attempt to trade cryptos by the amount of crypto you want to trade. If changed to ‘price’, order will attempt to trade cryptos by the price you want to buy or sell.
+            limitPrice (Optional[float]) – The price to trigger the market order.
+            timeInForce (Optional[str]) – Changes how long the order will be in effect for. ‘gtc’ = good until cancelled.
+            jsonify (Optional[str]) – If set to False, function will return the request object which contains status code and headers.
+
+        Returns:
+
+        Dictionary that contains information regarding the selling of crypto, such as the order id, the state of order (queued, confired, filled, failed, canceled, etc.), the price, and the quantity.'''
+
+    def __init__(self):
+        #self.record_book = {} # The record book
+        self.bought_crypto = False # initialize
+        self.sold_crypto = False # initialize
+        self.orders = {}
+        self.currentPrice = 0.00 # current price of whatever coin is being used
+        self.currentDataFrame = pd.DataFrame() # initialize
+        if path.exists("orders.pickle"):
+                # Load state
+            print("Loading previously saved state")
+            with open("orders.pickle", "rb") as f:
+                self.orders = pickle.load(f)
+        else:
+            # Start from scratch
+            print("No state saved, starting from scratch")
+            pd.DataFrame(self.orders).to_pickle("dataframe.pickle")
+        # Connect to RobinHood
+        if not config["debug_enabled"]:
+            try:
+                rh_response = r.login(config["username"], config["password"])
+            except:
+                print("Got exception while attempting to log into RobinHood.")
+                exit()
+
+
+
+        #? self.orders.to_pickle("dataframe.pickle")
+    # actions
+    def scout(self):
+        df_master = pd.DataFrame.from_dict(r.get_crypto_positions()).drop(
+            columns=["account_id", "cost_bases", "id", "updated_at"]
+            )
+        df_master.to_csv('df_master.csv')
+        self.currentDataFrame = df_master
+    def buy_robinhood_crypto_limit(self,ticker,limit_price):
+        try:
+            quantityOrPrice = config['buy_amount_per_trade'] # the buy amount per trade
+            r.orders.order_crypto(ticker,'buy',
+                                  quantityOrPrice,
+                                  amountIn='price',
+                                  limitPrice=limit_price,
+                                  timeInForce='gtc',
+                                  jsonify=True)
+        except Exception:
+            pass
+        # Save state
+        with open("orders.pickle", "wb") as f:
+            pickle.dump(self.orders, f)
+
+    def buy_robinhood_crypto_dollars(self,ticker,dollars):
+        try:
+            quantityOrPrice = dollars # the buy amount per trade
+            r.orders.order_crypto(ticker,'buy',
+                                  quantityOrPrice,
+                                  amountIn='price',
+                                  limitPrice=None,
+                                  timeInForce='gtc',
+                                  jsonify=True)
+        except Exception:
+            pass
+        # Save state
+        with open("orders.pickle", "wb") as f:
+            pickle.dump(self.orders, f)
+
+    def sell_robinhood_crypto_coins(self,ticker):
+        try:
+            # hashing out the coin name from the embedded dictionary in the df_master
+            row_id = -1 # initializer for row
+            self.scout()
+            df_master = self.currentDataFrame
+            for i in range(0,len(df_master)):
+                coin_name = df_master['currency'][i]['code']
+                if coin_name == ticker:
+                    row_id = i # this is the row where our data lives.
+                    break
+            if row_id > -1:
+                #todo can limit decimal places with the string here
+                current_holdings = float(df_master['quantity'][row_id]) # ...or quantity available
+                digits = len(str(current_holdings)) # digits for this coin (maximum granularity)
+                quantityOrPrice = current_holdings/4 # one fourth of the quantity held.
+                quantityOrPrice = str(quantityOrPrice)[0:int(digits)]
+                quantityOrPrice = float(quantityOrPrice)
+                r.orders.order_crypto(ticker,'sell',
+                                    quantityOrPrice,
+                                    amountIn='quantity',
+                                    limitPrice=None,
+                                    timeInForce='gtc',
+                                    jsonify=True)
+                print("order submitted for a sell of ",quantityOrPrice," ",ticker)
+            else:
+                print("row id issue")
+        except Exception as e:
+            pass
+        # Save state
+        current_holdings = current_holdings - quantityOrPrice
+        self.orders['BTC'] = current_holdings
+        with open("orders.pickle", "wb") as f:
+            pickle.dump(self.orders, f)
+
+bought_prices = {}
+bought_signals = {}
 
 if __name__ == "__main__":
+
+    login = r.login(config['username'], config['password'])
+
     MaidMarian = checker()  # initialize the checker object
-    LittleJohn = trader()  # initialize the trader class
-    LittleJohn.run()  # run the trader class
+    #LittleJohn = trader()  # initialize the trader class
+    Sherrif = thief() # initialize the thief class
+
+    bought = False
+    coin_names = ['BTC','ETH','DOGE','ETC','SHIB','MATIC','UNI',"XLM",'LTC','LINK']
+    while True:
+        print("Running Over The Coins...")
+        for ticker in coin_names:
+            try:
+                bought = bought_signals[ticker]
+            except Exception:
+                bought = False
+            print("Running on Coin: ",ticker," bought is currently ", bought)
+            #ticker = 'BTC'
+            #!Sherrif.buy_robinhood_crypto_dollars(ticker,1.00) # market order order
+            Sherrif.scout()
+            df_master = Sherrif.currentDataFrame
+            for i in range(0,len(df_master)):
+                coin_name = df_master['currency'][i]['code']
+                if coin_name == ticker:
+                    row_id = i # this is the row where our data lives.
+                    current_holdings = float(df_master['quantity'][row_id])
+                    break
+
+            tick = r.orders.get_crypto_quote(ticker)
+            currentPrice = float(tick['mark_price'])# current price
+            currentSpread = abs(float(tick['bid_price']) - float(tick['ask_price']))
+            try:
+                boughtPrice = bought_prices[ticker] # initialize
+            except Exception: #
+                boughtPrice = currentPrice
+            #?current_holdings
+            Sell_Conditions_Met = False
+            val = boughtPrice - currentPrice
+            formatted_string = "{:.9f}".format(val)
+
+
+            tv = checker.trading_view_suggestion(ticker)
+
+            if boughtPrice + currentSpread < currentPrice or tv == -1:
+                Sell_Conditions_Met = True #
+            else: #
+                pass
+
+            #//guess_price = currentPrice - currentPrice*0.0001 # 1% less than current price
+            #//print("guessing price:  ", guess_price)
+
+            if not bought and tv == 1: # trading view suggests buy
+                try:
+                    Sherrif.buy_robinhood_crypto_dollars(ticker,2.00)
+                    #//Sherrif.buy_robinhood_crypto_limit(ticker,guess_price)
+                    bought = True
+                    boughtPrice = currentPrice
+                    bought_prices[ticker] = boughtPrice
+                    time.sleep(random.randint(5,10))
+                except Exception:
+                    pass
+            elif bought and Sell_Conditions_Met:
+                Sherrif.sell_robinhood_crypto_coins(ticker)
+                bought_prices[ticker] = -1 # remove the price from the prices
+                time.sleep(random.randint(5,10))
+            elif not bought and Sell_Conditions_Met: #* sell balances not reflected by 'bought' variable
+                try: #
+                    Sherrif.sell_robinhood_crypto_coins(ticker)
+                except Exception:
+                    pass
+            else: #
+                print("Neither event received")
+            print(f'tv:{tv}, bought:{bought}')
+            bought_signals[ticker] = bought # save the signal
+            time.sleep(random.randint(0,2))
+
+        seconds = random.randint(60,120)
+        print("napping...",seconds,' seconds')
+        time.sleep(seconds)

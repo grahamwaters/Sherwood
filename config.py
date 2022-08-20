@@ -13,7 +13,7 @@ config = {
     },
     'buy_below_moving_average': 0.0075, # buy if price drops below Fast_MA by this percentage (0.75%)
     'profit_percentage': 0.01, # sell if price raises above purchase price by this percentage (1%)
-    'buy_amount_per_trade': 0, # if greater than zero, buy this amount of coin, otherwise use all the cash in the account
+    'buy_amount_per_trade': 1.00, # if greater than zero, buy this amount of coin, otherwise use all the cash in the account
     'moving_average_periods': { # data points needed to calculate SMA fast, SMA slow, MACD fast, MACD slow, MACD signal
         'sma_fast': 24, # 12 data points per hour, 2 hours worth of data
         'sma_slow': 96,

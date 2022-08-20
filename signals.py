@@ -38,7 +38,6 @@ class old_signals:
             # RSI above threshold
             data.iloc[-1][ticker + "_RSI"] > config["rsi_threshold"]["buy"]
         )
-
     def buy_sma_rsi_threshold(self, ticker, data):
         # Simple Fast-SMA and RSI
         # Buy when price is below Fast-SMA and RSI is below threshold
@@ -55,14 +54,12 @@ class old_signals:
             # RSI below the threshold
             data.iloc[-1][ticker + "_RSI"] <= config["rsi_threshold"]["buy"]
         )
-
     def sell_above_buy(self, asset, data):
         # Simple percentage
 
         return data.iloc[-1][asset.ticker] > asset.price + (
             asset.price * config["profit_percentage"]
         )
-
     def sell_sma_crossover_rsi(self, asset, data):
         # Moving Average Crossover with RSI Filter
         # Credits: https://trader.autochartist.com/moving-average-crossover-with-rsi-filter/
@@ -100,15 +97,12 @@ class old_signals:
             data.iloc[-1][asset.ticker]
             >= asset.price + (asset.price * config["profit_percentage"])
         )
-
-
 class signals:  #
     def __init__(self):  #
         self.rsi_buy = False
         self.rsi_sell = False
         self.above_bought = False  # is current price above where we bought the coin?
         self.current_rsi = 50  # current rsi value
-
     def rsi_signaller(self, current_rsi):
         # buy when RSI is below threshold for a 'buy'
         if float(current_rsi) < float(config["rsi_threshold"]["buy"]):
@@ -117,7 +111,6 @@ class signals:  #
             return -1  # signal a sell when RSI is above threshold
         else:  # signal a neutral when RSI is in between thresholds
             return 0  # do not buy or sell
-
     def trading_view_suggestion(self, ticker):
         # Trading View suggestions for buying/selling/holding crypto
         """
@@ -153,7 +146,6 @@ class signals:  #
             return -1
         else:  #
             return 0  # do not buy but don't sell either. This means that the ticker is neutral.
-
     def above_bought_signaller(self, current_price):
         # buy when price is above where we bought the coin
         if float(current_price) > float(self.above_bought):
