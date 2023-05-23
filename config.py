@@ -1,6 +1,6 @@
 config = {
-    'username': 'graham.waters37@gmail.com', # Robinhood credentials
-    'password': '4grnTMvdVrdy9GR',
+    'username': 'myemail', # Robinhood credentials
+    'password': 'myrobinhoodpassword',
     'trades_enabled': True, # if False, just collect data
     'debug_enabled': True, # if enabled, just pretend to connect to Robinhood
     'ticker_list': { # list of coin ticker pairs Kraken/Robinhood (XETHZUSD/ETH, etc) - https://api.kraken.com/0/public/AssetPairs
